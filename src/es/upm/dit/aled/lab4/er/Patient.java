@@ -131,6 +131,20 @@ public class Patient extends Thread {
 	 */
 	private void advanceProtocol() {
 		// TODO
+	private void advanceProtocol() {// TODO
+		//para poder usar la interfaz gráfica
+		Patient p = new Patient(this.number,this.location); //creo el paciente a mover
+		Transfer movement = this.protocol.get(this.indexProtocol); // la transferencia d slaa a hacer
+		EmergencyRoom er = new EmergencyRoom(); //creamos la er del paciente para poder dibujarla
+		er.addPatient(p);
+		er.addArea(this.location);
+		//interfaz gráfica mueve al paciente
+		EmergencyRoomGUI.initialize(er).animateTransfer(p, movement);
+		//cambiar ubicación actual paciente
+		this.location = movement.getTo();
+		//avanzar en el protocolo
+		this.indexProtocol +=1;
+		
 	}
 
 	/**
