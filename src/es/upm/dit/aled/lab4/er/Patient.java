@@ -25,7 +25,7 @@ public class Patient extends Thread {
 	private int number;
 	private List<Transfer> protocol;
 	private int indexProtocol;
-	private Area location;
+	private Area location; //área actual del paciente 
 	private Position2D position;
 	private Color color;
 
@@ -138,8 +138,13 @@ public class Patient extends Thread {
 	 * the Patient must spend at this method the amount of time specified in such
 	 * Area.
 	 */
-	private void attendedAtLocation() {
-		// TODO
+	private void attendedAtLocation() {// TODO
+		int t = this.location.getTime(); //tiempo de espera del área actual del paciente
+		try {
+			sleep(t); //hacemos que el paciente espere -> sleep esta hebra
+		} catch (InterruptedException e) {
+			return;
+		} 
 	}
 
 	/**
