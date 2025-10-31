@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -114,9 +115,53 @@ public class FASTAReaderThreads {
 	 * @return All the positions of the first character of every occurrence of the
 	 *         pattern in the data.
 	 */
-	public List<Integer> search(byte[] pattern) {
-		// TODO
-		return null;
+	public List<Integer> search(byte[] pattern) {// TODO
+		////lista con las pos en las q se ha encontrado el patrón
+		List<Integer> posOfConcurrences = new ArrayList<Integer>(); 
+		//nº procesadores q tiene el ordenador
+		int cores = Runtime.getRuntime().availableProcessors();
+		//longitud de cada sección del genoma máxima en la que podemos dividir el genoma
+		int lsection = this.content.length/cores;
+		int lo = 0;
+		int hi = 0;
+				
+		//para lanzar y gestionar los Threads (schedule them)
+		ExecutorService executor = Executors.newFixedThreadPool(cores);
+		//creamos una lista de resultados futuros para q podamos dsps obtener los resultados
+		//d todas las tareas FUERA del for y así concurran varios threads a la vez
+		List<Future<List<Integer>>> resultadosFuturos = new ArrayList<>();
+		
+		for(int i = 0; i<=cores; i++) {
+			//para cada tarea los índices de cada sección del genoma cambian 
+			//teniendo en cuenta q el último trozo es más pequeño
+			if(i<cores) {
+				lo = i*lsection;
+				hi = lo+lsection;
+			}
+			if(i==cores) {
+				lo = i*lsection;
+				hi = this.validBytes;
+			}
+			//tarea a ejecutar
+			Callable<List<Integer>> tarea = new FASTASearchCallable(this,lo,hi,pattern);
+			//enviamos tareas al servicio de ejecución
+			Future<List<Integer>> resultadoFuturo = executor.submit(tarea);
+			//y las guardamos en nuestra lista d resultados
+			resultadosFuturos.add(resultadoFuturo);
+		}
+			//obtenemos el resultado de la tarea d cada hebra CÓDIGO SE BLOQUEA
+		for(Future<List<Integer>> resultado : resultadosFuturos) {
+			//añadimos la lista d la sección a la lista general 
+			try {
+				posOfConcurrences.addAll(resultado.get());
+			} catch (Exception e) {
+				return null;
+			}
+		}
+			//cerramos el ExecutorService
+			executor.shutdown();
+	
+		return posOfConcurrences;
 	}
 
 	public static void main(String[] args) {
