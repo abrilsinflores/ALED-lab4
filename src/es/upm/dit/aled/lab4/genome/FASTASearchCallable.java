@@ -52,10 +52,9 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 		List<Integer> posOfConcurrences = new ArrayList<Integer>(); 
 		//genoma leído x el FastaReaderThreads
 		byte[] genome = reader.getContent();
-		//sección de la que se ocupa esta tarea
-		byte[] sectionGenome = Arrays.copyOfRange(genome, lo, hi);
+		//miramos solo la sección de la que se ocupa esta tarea
 		try {
-			for (int i = 0; i<sectionGenome.length; i++) {
+			for (int i = lo; i<hi; i++) { 
 				if(compare(pattern,i)) {
 					posOfConcurrences.add(i);
 				}
