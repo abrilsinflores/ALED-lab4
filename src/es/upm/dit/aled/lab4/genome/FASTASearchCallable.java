@@ -1,6 +1,7 @@
 package es.upm.dit.aled.lab4.genome;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -46,9 +47,27 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	 *         pattern in the segment of content to be searched.
 	 */
 	@Override
-	public List<Integer> call() throws Exception {
-		// TODO
-		return null;
+	public List<Integer> call() throws Exception {//método q realizan d f inddp as tareas // TODO
+		//lista con las pos en las q se ha encontrado el patrón
+		List<Integer> posOfConcurrences = new ArrayList<Integer>(); 
+		//genoma leído x el FastaReaderThreads
+		byte[] genome = reader.getContent();
+		//sección de la que se ocupa esta tarea
+		byte[] sectionGenome = Arrays.copyOfRange(genome, lo, hi);
+		try {
+			for (int i = 0; i<sectionGenome.length; i++) {
+				if(compare(pattern,i)) {
+					posOfConcurrences.add(i);
+				}
+			}
+			
+		}catch(Exception e) {
+			System.out.println("Pattern exceeds the size of the file");
+		}
+		
+		if(posOfConcurrences.size()==0) {System.out.println("No se han encontrado patrones concurrentes"
+				+ " en este segmento del genoma");}
+		return posOfConcurrences;
 	}
 
 	/*
