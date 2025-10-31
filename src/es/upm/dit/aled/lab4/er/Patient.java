@@ -167,12 +167,8 @@ public class Patient extends Thread {
 			attendedAtLocation(); //atendemos paciente en la ubicación actual
 			advanceProtocol(); //avanzamos al siguiente paso del protocolo
 		}
-		//eliminar al paciente
-		Patient p = new Patient(this.number,this.location); //creo el paciente a mover
-		EmergencyRoom er = new EmergencyRoom(); //creamos la er del paciente para poder dibujarla
-		er.addPatient(p);
-		er.addArea(this.location);
-		EmergencyRoomGUI.initialize(er).removePatient(p); //lo elimino
+		//eliminar al paciente de la interfaz 
+		EmergencyRoomGUI.getInstance().removePatient(this); //lo elimino
 	}
 
 }
