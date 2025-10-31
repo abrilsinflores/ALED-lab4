@@ -24,7 +24,7 @@ public class Patient extends Thread {
 
 	private int number;
 	private List<Transfer> protocol;
-	private int indexProtocol;
+	private int indexProtocol; //posición de la lista en la que estamos
 	private Area location; //área actual del paciente 
 	private Position2D position;
 	private Color color;
@@ -38,7 +38,7 @@ public class Patient extends Thread {
 	public Patient(int number, Area initialLocation) {
 		this.number = number;
 		this.protocol = new ArrayList<Transfer>();
-		this.indexProtocol = 0;
+		this.indexProtocol = 0; 
 		this.location = initialLocation;
 		this.position = initialLocation.getPosition();
 		this.color = Color.GRAY; // Default color
@@ -129,19 +129,14 @@ public class Patient extends Thread {
 	 * Advances the Patient's protocol. The Patient is moved to the new Area, the
 	 * movement is animated by the GUI and the index is increased by one.
 	 */
-	private void advanceProtocol() {
-		// TODO
 	private void advanceProtocol() {// TODO
-		//para poder usar la interfaz gráfica
-		Patient p = new Patient(this.number,this.location); //creo el paciente a mover
-		Transfer movement = this.protocol.get(this.indexProtocol); // la transferencia d slaa a hacer
-		EmergencyRoom er = new EmergencyRoom(); //creamos la er del paciente para poder dibujarla
-		er.addPatient(p);
-		er.addArea(this.location);
+		//mov (transferencia a sala) q tiene q hacer el paciente
+		Transfer movement = this.protocol.get(this.indexProtocol); 
 		//interfaz gráfica mueve al paciente
-		EmergencyRoomGUI.initialize(er).animateTransfer(p, movement);
+		EmergencyRoomGUI.getInstance().animateTransfer(this, movement);
 		//cambiar ubicación actual paciente
 		this.location = movement.getTo();
+		System.out.println("movemos paciente con id: "+this.number+" al área: "+movement.getTo().toString());
 		//avanzar en el protocolo
 		this.indexProtocol +=1;
 		
@@ -167,8 +162,6 @@ public class Patient extends Thread {
 	 * the protocol is reached. At that point, the Patient is removed from the GUI.
 	 */
 	@Override
-	public void run() {
-		// TODO
 	public void run() {// TODO
 		while(this.indexProtocol<this.protocol.size()) {//vuelta a atender al paciente hasta finalizar protocolo
 			attendedAtLocation(); //atendemos paciente en la ubicación actual

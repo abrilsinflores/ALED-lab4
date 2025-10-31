@@ -11,7 +11,7 @@ import java.util.Objects;
  */
 public class Transfer {
 
-	private Area to;
+	private Area to; //área hacia la que se mueve el paciente
 	private int time;
 
 	/**
