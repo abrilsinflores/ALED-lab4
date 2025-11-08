@@ -129,7 +129,7 @@ public class Patient extends Thread {
 	 * Advances the Patient's protocol. The Patient is moved to the new Area, the
 	 * movement is animated by the GUI and the index is increased by one.
 	 */
-	private void advanceProtocol() {// TODO
+	private void advanceProtocol() {
 		//mov (transferencia a sala) q tiene q hacer el paciente
 		Transfer movement = this.protocol.get(this.indexProtocol); 
 		//interfaz gráfica mueve al paciente
@@ -138,7 +138,7 @@ public class Patient extends Thread {
 		this.location = movement.getTo();
 		System.out.println("movemos paciente con id: "+this.number+" al área: "+movement.getTo().toString());
 		//avanzar en el protocolo
-		this.indexProtocol +=1;
+		this.indexProtocol ++;
 		
 	}
 
@@ -147,12 +147,14 @@ public class Patient extends Thread {
 	 * the Patient must spend at this method the amount of time specified in such
 	 * Area.
 	 */
-	private void attendedAtLocation() {// TODO
+	private void attendedAtLocation() {
 		int t = this.location.getTime(); //tiempo de espera del área actual del paciente
 		try {
+			System.out.println("Patient " + this.number + " is being attended at " + this.location);
 			sleep(t); //hacemos que el paciente espere -> sleep esta hebra
 		} catch (InterruptedException e) {
-			return;
+			e.printStackTrace();
+			Thread.currentThread().interrupt(); // Restore interrupted status
 		} 
 	}
 
@@ -162,13 +164,16 @@ public class Patient extends Thread {
 	 * the protocol is reached. At that point, the Patient is removed from the GUI.
 	 */
 	@Override
-	public void run() {// TODO
+	public void run() {
+		attendedAtLocation(); //atendemos paciente en la ubicación actual
 		while(this.indexProtocol<this.protocol.size()) {//vuelta a atender al paciente hasta finalizar protocolo
-			attendedAtLocation(); //atendemos paciente en la ubicación actual
 			advanceProtocol(); //avanzamos al siguiente paso del protocolo
+			attendedAtLocation(); //espera en la sig sala
 		}
 		//eliminar al paciente de la interfaz 
 		EmergencyRoomGUI.getInstance().removePatient(this); //lo elimino
+		System.out.println("Patient " + this.number + " protocol finished at " + this.location);
+
 	}
 
 }
