@@ -115,51 +115,46 @@ public class FASTAReaderThreads {
 	 * @return All the positions of the first character of every occurrence of the
 	 *         pattern in the data.
 	 */
-	public List<Integer> search(byte[] pattern) {// TODO
+	public List<Integer> search(byte[] pattern) {
 		////lista con las pos en las q se ha encontrado el patrón
-		List<Integer> posOfConcurrences = new ArrayList<Integer>(); 
+		List<Integer> posOfConcurrences = new ArrayList<Integer>(0); 
+		try {
 		//nº procesadores q tiene el ordenador
 		int cores = Runtime.getRuntime().availableProcessors();
+		System.out.println("Using " + cores + " cores.");
 		//longitud de cada sección del genoma máxima en la que podemos dividir el genoma
 		int lsection = this.content.length/cores;
 		int lo = 0;
-		int hi = 0;
+		int hi = 0+lsection;
 				
 		//para lanzar y gestionar los Threads (schedule them)
 		ExecutorService executor = Executors.newFixedThreadPool(cores);
 		//creamos una lista de resultados futuros para q podamos dsps obtener los resultados
 		//d todas las tareas FUERA del for y así concurran varios threads a la vez
-		List<Future<List<Integer>>> resultadosFuturos = new ArrayList<>();
+		Future<List<Integer>>[] resultadosFuturos = new Future[cores];
 		
 		for(int i = 0; i<=cores; i++) {
-			//para cada tarea los índices de cada sección del genoma cambian 
-			//teniendo en cuenta q el último trozo es más pequeño
-			if(i<cores) {
-				lo = i*lsection;
-				hi = lo+lsection;
-			}
-			if(i==cores) {
-				lo = i*lsection;
-				hi = this.validBytes;
-			}
 			//tarea a ejecutar
 			Callable<List<Integer>> tarea = new FASTASearchCallable(this,lo,hi,pattern);
 			//enviamos tareas al servicio de ejecución
 			Future<List<Integer>> resultadoFuturo = executor.submit(tarea);
 			//y las guardamos en nuestra lista d resultados
-			resultadosFuturos.add(resultadoFuturo);
+			resultadosFuturos[i] = resultadoFuturo;
+			//increase lo and hi
+			lo +=lsection;
+			hi +=lsection;
 		}
 			//obtenemos el resultado de la tarea d cada hebra CÓDIGO SE BLOQUEA
-		for(Future<List<Integer>> resultado : resultadosFuturos) {
+		for(int i = 0; i < resultadosFuturos.length; i++) {
 			//añadimos la lista d la sección a la lista general 
-			try {
-				posOfConcurrences.addAll(resultado.get());
-			} catch (Exception e) {
-				return null;
-			}
+				posOfConcurrences.addAll(resultadosFuturos[i].get());
+			
 		}
 			//cerramos el ExecutorService
 			executor.shutdown();
+	} catch (Exception e) {
+		System.out.println("Task was interrupted: " + e.getMessage());
+	}
 	
 		return posOfConcurrences;
 	}

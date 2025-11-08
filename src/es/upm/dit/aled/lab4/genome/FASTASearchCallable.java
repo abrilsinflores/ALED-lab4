@@ -31,7 +31,7 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	 * @param hi      The higher bound of the segment of content to be searched.
 	 * @param pattern The pattern to be found.
 	 */
-	public FASTASearchCallable(FASTAReaderThreads reader, int lo, int hi, byte[] pattern) {// TODO
+	public FASTASearchCallable(FASTAReaderThreads reader, int lo, int hi, byte[] pattern) {
 		this.reader = reader;
 		this.lo = lo;
 		this.hi = hi;
@@ -47,21 +47,17 @@ public class FASTASearchCallable implements Callable<List<Integer>> {
 	 *         pattern in the segment of content to be searched.
 	 */
 	@Override
-	public List<Integer> call() throws Exception {//método q realizan d f inddp as tareas // TODO
+	public List<Integer> call() throws Exception {//método q realizan d f inddp as tareas 
 		//lista con las pos en las q se ha encontrado el patrón
 		List<Integer> posOfConcurrences = new ArrayList<Integer>(); 
-		//genoma leído x el FastaReaderThreads
-		byte[] genome = reader.getContent();
-		//miramos solo la sección de la que se ocupa esta tarea
-		try {
-			for (int i = lo; i<hi; i++) { 
-				if(compare(pattern,i)) {
-					posOfConcurrences.add(i);
+		for (int i = lo; i<hi; i++) { 
+				try {
+					if (compare(pattern, i))
+						posOfConcurrences.add(i);
+				} catch (FASTAException e) {
+					// We have reached the end of the file
+					break;
 				}
-			}
-			
-		}catch(Exception e) {
-			System.out.println("Pattern exceeds the size of the file");
 		}
 		
 		if(posOfConcurrences.size()==0) {System.out.println("No se han encontrado patrones concurrentes"
